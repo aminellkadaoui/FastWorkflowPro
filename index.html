@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphControl — After Effects Script</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #00A1FF;
+            --primary-dark: #1C79FE;
+            --dark: #2A2A2A;
+            --light: #EEEEEE;
+            --bg-dark: #0a0a0a;
+            --bg-light: #f8f9fa;
+        }
+        
+        * {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: #ffffff;
+            transition: all 0.4s ease;
+        }
+        
+        body.light-mode {
+            background: var(--bg-light);
+            color: #1a1a1a;
+        }
+        
+        body.rtl {
+            direction: rtl;
+        }
+        
+        .glass-dark {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 161, 255, 0.15);
+        }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(28, 121, 254, 0.2);
+        }
+        
+        body.light-mode .glass-dark {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(28, 121, 254, 0.2);
+        }
+        
+        .script-panel {
+            background: #0d0d0d;
+            border: 1px solid rgba(0, 161, 255, 0.3);
+        }
+        
+        body.light-mode .script-panel {
+            background: #1a1a1a;
+        }
+        
+        .glow {
+            box-shadow: 0 0 40px rgba(0, 161, 255, 0.25), 0 0 80px rgba(0, 161, 255, 0.1);
+        }
+        
+        .glow-primary {
+            box-shadow: 0 0 50px rgba(0, 161, 255, 0.3), 0 0 100px rgba(0, 161, 255, 0.15);
+        }
+        
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 161, 255, 0.25);
+        }
+        
+        .slider-demo {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #00A1FF, #1C79FE);
+        }
+        
+        .slider-demo::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 161, 255, 0.5);
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-download:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 50px rgba(0, 161, 255, 0.5);
+        }
+        
+        .pulse-dot {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .toggle-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            color: white;
+        }
+        
+        .toggle-btn:not(.active) {
+            background: rgba(30, 30, 30, 0.8);
+            color: #666;
+        }
+        
+        body.light-mode .toggle-btn:not(.active) {
+            background: rgba(238, 238, 238, 0.9);
+            color: #555;
+        }
+        
+        .tooltip-box {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .tooltip-box:hover {
+            transform: scale(1.03) translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 161, 255, 0.4);
+        }
+        
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #00A1FF;
+            transform: rotate(45deg);
+        }
+        
+        .tooltip-left::after {
+            right: -6px;
+            top: 50%;
+            margin-top: -6px;
+        }
+        
+        .tooltip-right::after {
+            left: -6px;
+            top: 50%;
+            margin-top: -6px;
+        }
+        
+        body.rtl .tooltip-left::after {
+            right: auto;
+            left: -6px;
+        }
+        
+        body.rtl .tooltip-right::after {
+            left: auto;
+            right: -6px;
+        }
+        
+        .highlight-ring {
+            position: absolute;
+            border: 2px solid #00A1FF;
+            border-radius: 8px;
+            animation: ringPulse 2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes ringPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 161, 255, 0.5); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(0, 161, 255, 0); }
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            min-width: 40px;
+            height: 40px;
+        }
+        
+        .install-step {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .install-step:hover {
+            background: rgba(0, 161, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
+        body.rtl .install-step:hover {
+            transform: translateX(-5px);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .number-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 161, 255, 0.5);
+        }
+
+        body.rtl .number-badge {
+            right: auto;
+            left: -8px;
+        }
+        
+        .dua-card {
+            background: linear-gradient(135deg, rgba(0, 161, 255, 0.08), rgba(28, 121, 254, 0.08));
+            border: 1px solid rgba(0, 161, 255, 0.25);
+        }
+        
+        body.light-mode .dua-card {
+            background: linear-gradient(135deg, rgba(0, 161, 255, 0.06), rgba(28, 121, 254, 0.06));
+        }
+        
+        /* Theme toggle switch */
+        .theme-switch {
+            width: 60px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 2px solid #00A1FF;
+        }
+        
+        body.light-mode .theme-switch {
+            background: #e0e0e0;
+        }
+        
+        .theme-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(0, 161, 255, 0.5);
+        }
+        
+        body.light-mode .theme-switch::after {
+            left: 32px;
+        }
+        
+        .theme-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-icon.moon {
+            left: 8px;
+            opacity: 1;
+        }
+        
+        .theme-icon.sun {
+            right: 8px;
+            opacity: 0.4;
+        }
+        
+        body.light-mode .theme-icon.moon {
+            opacity: 0.4;
+        }
+        
+        body.light-mode .theme-icon.sun {
+            opacity: 1;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        body.light-mode .card-bg {
+            background: white;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-bg {
+            background: rgba(15, 15, 15, 0.9);
+        }
+        
+        /* Social Icons */
+        .social-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 161, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .social-icon:hover {
+            background: linear-gradient(135deg, #00A1FF, #1C79FE);
+            border-color: transparent;
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 161, 255, 0.4);
+        }
+        
+        .social-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        body.light-mode .social-icon {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        body.light-mode .social-icon svg {
+            fill: #2A2A2A;
+        }
+        
+        body.light-mode .social-icon:hover svg {
+            fill: #ffffff;
+        }
+        
+        body.light-mode .text-white {
+            color: #1a1a1a;
+        }
+        
+        body.light-mode footer {
+            border-color: #e0e0e0;
+        }
+        
+        body.light-mode footer .border-t {
+            border-color: #e0e0e0;
+        }
+        
+        /* Shimmer effect */
+        .shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shimmer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        /* Fade in animation */
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-white fade-in">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-dark">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center font-bold text-lg text-white shimmer">
+                    G
+                </div>
+                <span class="font-bold text-lg text-white">GraphControl</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <div class="theme-switch" id="themeToggle" title="Toggle Light/Dark Mode">
+                    <span class="theme-icon moon">🌙</span>
+                    <span class="theme-icon sun">☀️</span>
+                </div>
+                
+                <!-- Language Toggle -->
+                <div class="flex items-center gap-1 bg-[#2A2A2A]/50 p-1 rounded-lg">
+                    <button id="btnEN" class="toggle-btn active px-3 py-1.5 rounded-md text-sm font-medium">
+                        EN
+                    </button>
+                    <button id="btnAR" class="toggle-btn px-3 py-1.5 rounded-md text-sm font-medium">
+                        عربي
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-32 pb-20 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 bg-[#00A1FF]/15 border border-[#00A1FF]/30 rounded-full px-5 py-2 mb-8">
+                <span class="pulse-dot w-2 h-2 bg-[#00A1FF] rounded-full"></span>
+                <span class="text-sm text-[#00A1FF] font-medium" data-en="Free After Effects Script" data-ar="سكربت أفتر إفكتس مجاني">Free After Effects Script</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-bold mb-8 text-gradient">
+                GraphControl
+            </h1>
+            
+            <p class="text-xl md:text-2xl mb-4 text-white" data-en="Free script for controlling the Graph in After Effects" data-ar="سكربت مجاني للتحكم في الجراف في After Effects">
+                سكربت مجاني للتحكم في الجراف في After Effects
+            </p>
+            
+            <p class="text-lg text-gray-300 mb-5" data-en="Designed to simplify easing and solve the problem of wasting time on the graph" data-ar="صُمم لتسهيل الإيزينغ وحل مشكلة تضييع الوقت في الجراف">
+                صُمم لتسهيل الإيزينغ وحل مشكلة تضييع الوقت في الجراف
+            </p>
+            
+            <p class="text-md text-[#00A1FF] mb-10 font-medium" data-en="Available for free, seeking Allah's pleasure" data-ar="متاح مجانًا ابتغاء وجه الله">
+                متاح مجانًا ابتغاء وجه الله
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#download" class="btn-download px-8 py-4 rounded-xl font-semibold text-lg flex items-center gap-3 text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span data-en="Download Free" data-ar="تحميل مجاني">تحميل مجاني</span>
+                </a>
+                <a href="#guide" class="px-8 py-4 rounded-xl font-medium border border-[#00A1FF]/50 hover:border-[#00A1FF] transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span data-en="View Guide" data-ar="عرض الدليل">عرض الدليل</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dua Request Section -->
+    <section class="py-8 px-4">
+        <div class="max-w-2xl mx-auto">
+            <div class="dua-card rounded-2xl p-6 text-center shimmer">
+                <p class="text-lg mb-2" data-en="If this script benefits you, please remember its creator with a sincere supplication" data-ar="إن نفعك السكربت، فلا تنسَ صاحبه من دعوة صالحة بظهر الغيب">
+                    إن نفعك السكربت، فلا تنسَ صاحبه من دعوة صالحة بظهر الغيب
+                </p>
+                <p class="text-[#00A1FF] font-medium" data-en="Dua is the only reward" data-ar="فالدعاء هو المقابل الوحيد">
+                    فالدعاء هو المقابل الوحيد
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="glass-dark rounded-3xl p-8 md:p-12 text-center glow-primary">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center floating">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                </div>
+                
+                <h2 class="text-3xl font-bold mb-4" data-en="Download GraphControl" data-ar="تحميل GraphControl">تحميل GraphControl</h2>
+                <p class="text-gray-400 mb-8 max-w-lg mx-auto" data-en="Get the latest version of GraphControl script for Adobe After Effects" data-ar="احصل على أحدث إصدار من سكربت GraphControl لأدوبي أفتر إفكتس">احصل على أحدث إصدار من سكربت GraphControl لأدوبي أفتر إفكتس</p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                    <a href="https://drive.google.com/drive/folders/1j13M4B9B3yeN-ivpo607N2Ef8qCe0L7f?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-download px-10 py-4 rounded-xl font-semibold text-lg flex items-center gap-3 text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        <span data-en="Download .jsx File" data-ar="تحميل ملف .jsx">تحميل ملف .jsx</span>
+                    </a>
+                </div>
+                
+                <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span data-en="Free to use" data-ar="مجاني للاستخدام">مجاني للاستخدام</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>AE CC 2019+</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span data-en="Windows & Mac" data-ar="ويندوز وماك">ويندوز وماك</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation Section -->
+    <section id="install" class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4" data-en="Installation Guide" data-ar="دليل التثبيت">دليل التثبيت</h2>
+                <p class="text-gray-400" data-en="Follow these simple steps to install GraphControl" data-ar="اتبع هذه الخطوات البسيطة لتثبيت GraphControl">اتبع هذه الخطوات البسيطة لتثبيت GraphControl</p>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Step 1 -->
+                <div class="install-step glass-dark card-bg rounded-2xl p-6 flex items-start gap-5">
+                    <div class="step-number rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-white">
+                        1
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2" data-en="Download the Script" data-ar="تحميل السكربت">تحميل السكربت</h3>
+                        <p class="text-gray-400" data-en='Click the download button above to get the "GraphControl.jsx" file' data-ar='اضغط على زر التحميل أعلاه للحصول على ملف "GraphControl.jsx"'>اضغط على زر التحميل أعلاه للحصول على ملف "GraphControl.jsx"</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="w-12 h-12 rounded-xl bg-[#00A1FF]/20 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="install-step glass-dark card-bg rounded-2xl p-6 flex items-start gap-5">
+                    <div class="step-number rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-white">
+                        2
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2" data-en="Locate Scripts Folder" data-ar="تحديد مجلد السكربتات">تحديد مجلد السكربتات</h3>
+                        <p class="text-gray-400 mb-3" data-en="Navigate to the After Effects scripts folder:" data-ar="انتقل إلى مجلد سكربتات أفتر إفكتس:">انتقل إلى مجلد سكربتات أفتر إفكتس:</p>
+                        <div class="bg-[#1a1a1a] rounded-lg p-3 font-mono text-sm text-[#00A1FF] overflow-x-auto">
+                            <div class="mb-2"><span class="text-gray-500">Windows:</span> C:\Program Files\Adobe\Adobe After Effects\Support Files\Scripts\ScriptUI Panels\</div>
+                            <div><span class="text-gray-500">Mac:</span> /Applications/Adobe After Effects/Scripts/ScriptUI Panels/</div>
+                        </div>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="w-12 h-12 rounded-xl bg-[#00A1FF]/20 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="install-step glass-dark card-bg rounded-2xl p-6 flex items-start gap-5">
+                    <div class="step-number rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-white">
+                        3
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2" data-en="Copy the File" data-ar="نسخ الملف">نسخ الملف</h3>
+                        <p class="text-gray-400" data-en='Copy "GraphControl.jsx" to the ScriptUI Panels folder' data-ar='انسخ ملف "GraphControl.jsx" إلى مجلد ScriptUI Panels'>انسخ ملف "GraphControl.jsx" إلى مجلد ScriptUI Panels</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="w-12 h-12 rounded-xl bg-[#00A1FF]/20 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 4 -->
+                <div class="install-step glass-dark card-bg rounded-2xl p-6 flex items-start gap-5">
+                    <div class="step-number rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-white">
+                        4
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2" data-en="Restart After Effects" data-ar="أعد تشغيل أفتر إفكتس">أعد تشغيل أفتر إفكتس</h3>
+                        <p class="text-gray-400" data-en="Close and reopen After Effects for the script to appear" data-ar="أغلق أفتر إفكتس وأعد فتحه ليظهر السكربت">أغلق أفتر إفكتس وأعد فتحه ليظهر السكربت</p>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="w-12 h-12 rounded-xl bg-[#00A1FF]/20 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 5 -->
+                <div class="install-step glass-dark card-bg rounded-2xl p-6 flex items-start gap-5">
+                    <div class="step-number rounded-full flex items-center justify-center font-bold text-lg shrink-0 text-white">
+                        5
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg mb-2" data-en="Open the Script" data-ar="افتح السكربت">افتح السكربت</h3>
+                        <p class="text-gray-400 mb-3" data-en="In After Effects, go to:" data-ar="في أفتر إفكتس، اذهب إلى:">في أفتر إفكتس، اذهب إلى:</p>
+                        <div class="inline-flex items-center gap-2 bg-[#00A1FF]/20 border border-[#00A1FF]/30 rounded-lg px-4 py-2">
+                            <span class="font-mono text-[#00A1FF]">Window → GraphControl</span>
+                        </div>
+                    </div>
+                    <div class="hidden sm:block">
+                        <div class="w-12 h-12 rounded-xl bg-[#00A1FF]/20 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Guide Section -->
+    <section id="guide" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4" data-en="Script Guide" data-ar="دليل السكربت">دليل السكربت</h2>
+                <p class="text-gray-400" data-en="Learn how to use each feature of GraphControl" data-ar="تعلم كيفية استخدام كل ميزة في GraphControl">تعلم كيفية استخدام كل ميزة في GraphControl</p>
+            </div>
+            
+            <div class="relative flex flex-col lg:flex-row items-start justify-center gap-8 lg:gap-16">
+                
+                <!-- Left Tooltips -->
+                <div class="hidden lg:flex flex-col gap-8 w-72 pt-8">
+                    <!-- Tooltip 1 -->
+                    <div class="tooltip-box tooltip-left rounded-xl p-4 relative text-white">
+                        <span class="number-badge">1</span>
+                        <div class="font-bold mb-2" data-en="Ease Control Section" data-ar="قسم التحكم بالإيز">قسم التحكم بالإيز</div>
+                        <p class="text-white/90 text-sm" data-en="The main area for controlling keyframe interpolation. Adjust the In and Out influence percentages." data-ar="المنطقة الرئيسية للتحكم في حركة الكيفريمات. عدّل نسب تأثير الدخول والخروج.">المنطقة الرئيسية للتحكم في حركة الكيفريمات. عدّل نسب تأثير الدخول والخروج.</p>
+                    </div>
+                    
+                    <!-- Tooltip 2 -->
+                    <div class="tooltip-box tooltip-left rounded-xl p-4 relative text-white">
+                        <span class="number-badge">2</span>
+                        <div class="font-bold mb-2" data-en="In Slider" data-ar="سلايدر الدخول (In)">سلايدر الدخول (In)</div>
+                        <p class="text-white/90 text-sm" data-en="Controls the ease-in influence. Drag the slider or type a value (0-100%)." data-ar="يتحكم في تأثير الدخول. اسحب السلايدر أو اكتب قيمة (0-100%).">يتحكم في تأثير الدخول. اسحب السلايدر أو اكتب قيمة (0-100%).</p>
+                    </div>
+                    
+                    <!-- Tooltip 3 -->
+                    <div class="tooltip-box tooltip-left rounded-xl p-4 relative text-white">
+                        <span class="number-badge">3</span>
+                        <div class="font-bold mb-2" data-en="Out Slider" data-ar="سلايدر الخروج (Out)">سلايدر الخروج (Out)</div>
+                        <p class="text-white/90 text-sm" data-en="Controls the ease-out influence. Works the same as the In slider." data-ar="يتحكم في تأثير الخروج. يعمل بنفس طريقة سلايدر الدخول.">يتحكم في تأثير الخروج. يعمل بنفس طريقة سلايدر الدخول.</p>
+                    </div>
+                </div>
+
+                <!-- Script Panel Demo -->
+                <div class="relative script-panel rounded-2xl p-6 w-full max-w-sm glow" dir="ltr">
+                    <!-- Header -->
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-white mb-1">GraphControl</h3>
+                        <p class="text-gray-400 text-xs">After Effects Panel</p>
+                    </div>
+
+                    <!-- Ease Control Section -->
+                    <div class="bg-[#2A2A2A]/50 rounded-xl p-4 mb-4 relative" id="easeSection">
+                        <div class="highlight-ring -inset-1"></div>
+                        
+                        <h4 class="text-sm font-semibold text-white flex items-center gap-2 mb-4">
+                            <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Ease Control
+                        </h4>
+
+                        <!-- In Slider -->
+                        <div class="mb-3 relative">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-gray-300 text-xs font-medium">In:</label>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-white text-xs bg-[#1a1a1a] px-2 py-0.5 rounded" id="inValue">33</span>
+                                    <span class="text-gray-400 text-xs">%</span>
+                                </div>
+                            </div>
+                            <input type="range" value="33" min="0" max="100" class="slider-demo w-full cursor-pointer" id="inSlider">
+                        </div>
+
+                        <!-- Out Slider -->
+                        <div class="mb-4 relative">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-gray-300 text-xs font-medium">Out:</label>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-white text-xs bg-[#1a1a1a] px-2 py-0.5 rounded" id="outValue">33</span>
+                                    <span class="text-gray-400 text-xs">%</span>
+                                </div>
+                            </div>
+                            <input type="range" value="33" min="0" max="100" class="slider-demo w-full cursor-pointer" id="outSlider">
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex gap-2">
+                            <button class="btn-primary flex-1 py-2 px-3 rounded-lg text-white text-xs font-medium flex items-center justify-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Apply
+                            </button>
+                            <button class="bg-[#3a3a3a] hover:bg-[#4a4a4a] py-2 px-3 rounded-lg text-white text-xs font-medium flex items-center justify-center gap-1 transition">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                </svg>
+                                Reverse
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Graph Tools Section -->
+                    <div class="bg-[#2A2A2A]/50 rounded-xl p-4 mb-4 relative">
+                        <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            Graph Tools
+                        </h4>
+                        
+                        <div class="flex gap-2">
+                            <button class="bg-[#3a3a3a] hover:bg-[#4a4a4a] flex-1 py-2 px-3 rounded-lg text-white text-xs font-medium transition">
+                                ⧉ Copy
+                            </button>
+                            <button class="bg-[#3a3a3a] hover:bg-[#4a4a4a] flex-1 py-2 px-3 rounded-lg text-white text-xs font-medium transition">
+                                ⎘ Paste
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Presets Section -->
+                    <div class="bg-[#2A2A2A]/50 rounded-xl p-4 relative">
+                        <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#00A1FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                            </svg>
+                            Presets
+                        </h4>
+                        
+                        <div class="space-y-2 mb-3">
+                            <button class="w-full bg-[#1a1a1a]/50 hover:bg-[#00A1FF]/30 py-1.5 px-3 rounded-lg text-white text-xs text-left flex justify-between items-center transition">
+                                <span>Easy Ease</span>
+                                <span class="text-gray-400">33/33</span>
+                            </button>
+                            <button class="w-full bg-[#1a1a1a]/50 hover:bg-[#00A1FF]/30 py-1.5 px-3 rounded-lg text-white text-xs text-left flex justify-between items-center transition">
+                                <span>Strong Ease</span>
+                                <span class="text-gray-400">75/75</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex gap-1 pt-2 border-t border-[#3a3a3a]/50">
+                            <input type="text" placeholder="Name" class="flex-1 bg-[#1a1a1a]/50 border border-[#3a3a3a] rounded px-2 py-1 text-xs text-white focus:border-[#00A1FF] outline-none">
+                            <input type="text" value="33" class="w-10 bg-[#1a1a1a]/50 border border-[#3a3a3a] rounded px-1 py-1 text-xs text-white text-center focus:border-[#00A1FF] outline-none">
+                            <input type="text" value="33" class="w-10 bg-[#1a1a1a]/50 border border-[#3a3a3a] rounded px-1 py-1 text-xs text-white text-center focus:border-[#00A1FF] outline-none">
+                            <button class="btn-primary w-7 h-7 rounded text-white font-bold text-sm hover:opacity-80 transition">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Tooltips -->
+                <div class="hidden lg:flex flex-col gap-8 w-72 pt-8">
+                    <!-- Tooltip 4 -->
+                    <div class="tooltip-box tooltip-right rounded-xl p-4 relative text-white">
+                        <span class="number-badge">4</span>
+                        <div class="font-bold mb-2" data-en="Apply & Reverse" data-ar="تطبيق وعكس">تطبيق وعكس</div>
+                        <p class="text-white/90 text-sm" data-en="Apply: Applies values to selected keyframes. Reverse: Swaps In and Out values." data-ar="تطبيق: يطبق القيم على الكيفريمات المحددة. عكس: يبدل قيم الدخول والخروج.">تطبيق: يطبق القيم على الكيفريمات المحددة. عكس: يبدل قيم الدخول والخروج.</p>
+                    </div>
+                    
+                    <!-- Tooltip 5 -->
+                    <div class="tooltip-box tooltip-right rounded-xl p-4 relative text-white">
+                        <span class="number-badge">5</span>
+                        <div class="font-bold mb-2" data-en="Graph Tools" data-ar="أدوات الجراف">أدوات الجراف</div>
+                        <p class="text-white/90 text-sm" data-en="Copy interpolation from one keyframe and paste to others. Perfect for matching animation curves." data-ar="انسخ الحركة من كيفريم والصقها على غيره. مثالي لمطابقة منحنيات الأنيميشن.">انسخ الحركة من كيفريم والصقها على غيره. مثالي لمطابقة منحنيات الأنيميشن.</p>
+                    </div>
+                    
+                    <!-- Tooltip 6 -->
+                    <div class="tooltip-box tooltip-right rounded-xl p-4 relative text-white">
+                        <span class="number-badge">6</span>
+                        <div class="font-bold mb-2" data-en="Presets" data-ar="البريستات">البريستات</div>
+                        <p class="text-white/90 text-sm" data-en="Save your favorite ease combinations. Click a preset to apply it instantly." data-ar="احفظ تركيبات الإيز المفضلة. اضغط على بريست لتطبيقه فوراً.">احفظ تركيبات الإيز المفضلة. اضغط على بريست لتطبيقه فوراً.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Tooltips -->
+            <div class="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">1</span>
+                        <span data-en="Ease Control Section" data-ar="قسم التحكم بالإيز">قسم التحكم بالإيز</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="The main area for controlling keyframe interpolation." data-ar="المنطقة الرئيسية للتحكم في حركة الكيفريمات.">المنطقة الرئيسية للتحكم في حركة الكيفريمات.</p>
+                </div>
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">2</span>
+                        <span data-en="In Slider" data-ar="سلايدر الدخول (In)">سلايدر الدخول (In)</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="Controls the ease-in influence (0-100%)." data-ar="يتحكم في تأثير الدخول (0-100%).">يتحكم في تأثير الدخول (0-100%).</p>
+                </div>
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">3</span>
+                        <span data-en="Out Slider" data-ar="سلايدر الخروج (Out)">سلايدر الخروج (Out)</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="Controls the ease-out influence." data-ar="يتحكم في تأثير الخروج.">يتحكم في تأثير الخروج.</p>
+                </div>
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">4</span>
+                        <span data-en="Apply & Reverse" data-ar="تطبيق وعكس">تطبيق وعكس</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="Apply values or swap In/Out." data-ar="طبق القيم أو بدل الدخول/الخروج.">طبق القيم أو بدل الدخول/الخروج.</p>
+                </div>
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">5</span>
+                        <span data-en="Graph Tools" data-ar="أدوات الجراف">أدوات الجراف</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="Copy and paste interpolation." data-ar="نسخ ولصق الحركة.">نسخ ولصق الحركة.</p>
+                </div>
+                <div class="glass-dark card-bg rounded-xl p-4">
+                    <div class="font-bold mb-2 text-[#00A1FF] flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-gradient-to-r from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-xs text-white">6</span>
+                        <span data-en="Presets" data-ar="البريستات">البريستات</span>
+                    </div>
+                    <p class="text-gray-400 text-sm" data-en="Save and apply ease presets." data-ar="احفظ وطبق البريستات.">احفظ وطبق البريستات.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Use Section -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4" data-en="How to Use" data-ar="طريقة الاستخدام">طريقة الاستخدام</h2>
+                <p class="text-gray-400" data-en="Simple workflow to control your keyframes" data-ar="سير عمل بسيط للتحكم في الكيفريمات">سير عمل بسيط للتحكم في الكيفريمات</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Step 1 -->
+                <div class="glass-dark card-bg rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-2xl font-bold text-white">
+                        1
+                    </div>
+                    <h3 class="font-bold text-lg mb-2" data-en="Select Keyframes" data-ar="حدد الكيفريمات">حدد الكيفريمات</h3>
+                    <p class="text-gray-400 text-sm" data-en="Select one or more keyframes in the timeline or Graph Editor" data-ar="حدد كيفريم واحد أو أكثر في التايم لاين أو محرر الجراف">حدد كيفريم واحد أو أكثر في التايم لاين أو محرر الجراف</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="glass-dark card-bg rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-2xl font-bold text-white">
+                        2
+                    </div>
+                    <h3 class="font-bold text-lg mb-2" data-en="Adjust Values" data-ar="عدّل القيم">عدّل القيم</h3>
+                    <p class="text-gray-400 text-sm" data-en="Use the sliders to set In and Out influence (0-100%)" data-ar="استخدم السلايدرات لضبط قيم الدخول والخروج (0-100%)">استخدم السلايدرات لضبط قيم الدخول والخروج (0-100%)</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="glass-dark card-bg rounded-2xl p-6 text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center text-2xl font-bold text-white">
+                        3
+                    </div>
+                    <h3 class="font-bold text-lg mb-2" data-en="Apply" data-ar="طبّق">طبّق</h3>
+                    <p class="text-gray-400 text-sm" data-en="Click Apply to apply the values to selected keyframes" data-ar="اضغط تطبيق لتطبيق القيم على الكيفريمات المحددة">اضغط تطبيق لتطبيق القيم على الكيفريمات المحددة</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4" data-en="Features" data-ar="الميزات">الميزات</h2>
+                <p class="text-gray-400" data-en="Everything you need for perfect keyframe control" data-ar="كل ما تحتاجه للتحكم المثالي في الكيفريمات">كل ما تحتاجه للتحكم المثالي في الكيفريمات</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Precise Control" data-ar="تحكم دقيق">تحكم دقيق</h3>
+                    <p class="text-gray-400 text-sm" data-en="Set exact influence percentages with sliders or direct input" data-ar="حدد نسب التأثير بدقة باستخدام السلايدرات أو الإدخال المباشر">حدد نسب التأثير بدقة باستخدام السلايدرات أو الإدخال المباشر</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Quick Reverse" data-ar="عكس سريع">عكس سريع</h3>
+                    <p class="text-gray-400 text-sm" data-en="Swap In and Out values instantly with one click" data-ar="بدّل قيم الدخول والخروج فوراً بضغطة واحدة">بدّل قيم الدخول والخروج فوراً بضغطة واحدة</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Copy & Paste" data-ar="نسخ ولصق">نسخ ولصق</h3>
+                    <p class="text-gray-400 text-sm" data-en="Copy interpolation settings between keyframes easily" data-ar="انسخ إعدادات الحركة بين الكيفريمات بسهولة">انسخ إعدادات الحركة بين الكيفريمات بسهولة</p>
+                </div>
+                
+                <!-- Feature 4 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Saved Presets" data-ar="بريستات محفوظة">بريستات محفوظة</h3>
+                    <p class="text-gray-400 text-sm" data-en="Create and save your favorite ease combinations" data-ar="أنشئ واحفظ تركيبات الإيز المفضلة لديك">أنشئ واحفظ تركيبات الإيز المفضلة لديك</p>
+                </div>
+                
+                <!-- Feature 5 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Dockable Panel" data-ar="لوحة قابلة للإرساء">لوحة قابلة للإرساء</h3>
+                    <p class="text-gray-400 text-sm" data-en="Works as a dockable panel in your AE workspace" data-ar="تعمل كلوحة قابلة للإرساء في مساحة عملك">تعمل كلوحة قابلة للإرساء في مساحة عملك</p>
+                </div>
+                
+                <!-- Feature 6 -->
+                <div class="feature-card glass-dark card-bg rounded-2xl p-6">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2" data-en="Safe & Reliable" data-ar="آمن وموثوق">آمن وموثوق</h3>
+                    <p class="text-gray-400 text-sm" data-en="Undo support and error handling for safe operation" data-ar="دعم التراجع ومعالجة الأخطاء للعمل الآمن">دعم التراجع ومعالجة الأخطاء للعمل الآمن</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-4 border-t border-[#1a1a1a]">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="flex items-center justify-center gap-3 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A1FF] to-[#1C79FE] flex items-center justify-center font-bold text-xl text-white glow">
+                    G
+                </div>
+                <span class="font-bold text-2xl">GraphControl</span>
+            </div>
+            
+            <p class="text-xl mb-3 text-white" data-en="Free script for the sake of Allah" data-ar="سكربت مجاني في سبيل الله">
+                سكربت مجاني في سبيل الله
+            </p>
+            <p class="text-gray-400 mb-4" data-en="For solving easing and graph problems in After Effects" data-ar="لحل مشاكل الإيزينغ والجراف في After Effects">
+                لحل مشاكل الإيزينغ والجراف في After Effects
+            </p>
+            <p class="text-[#00A1FF] mb-8 text-lg font-medium" data-en="Dua is the only reward" data-ar="الدعاء هو المقابل الوحيد">
+                الدعاء هو المقابل الوحيد
+            </p>
+            
+            <!-- Social Media Icons -->
+            <div class="flex items-center justify-center gap-5 mb-10">
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/aminellkadaoui/" target="_blank" rel="noopener noreferrer" class="social-icon" title="Instagram">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                </a>
+                
+                <!-- YouTube -->
+                <a href="https://www.youtube.com/@aminellkadaoui" target="_blank" rel="noopener noreferrer" class="social-icon" title="YouTube">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                </a>
+                
+                <!-- Telegram -->
+                <a href="https://t.me/aminellkadaou" target="_blank" rel="noopener noreferrer" class="social-icon" title="Telegram">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                </a>
+            </div>
+            
+            <div class="border-t border-[#1a1a1a] pt-8 mt-2">
+                <p class="text-gray-300 mb-3" data-en="Developed by Amin El Kadaoui" data-ar="تم تطوير السكربت بواسطة أمين القضاوي">
+                    تم تطوير السكربت بواسطة أمين القضاوي
+                </p>
+                <p class="text-gray-500 text-sm mb-2" data-en="Selling or redistributing this script for profit is prohibited" data-ar="يُمنع بيع السكربت أو إعادة نشره بمقابل مادي">
+                    يُمنع بيع السكربت أو إعادة نشره بمقابل مادي
+                </p>
+                <p class="text-gray-600 text-sm" data-en="Available for free use without restrictions" data-ar="متاح للاستخدام المجاني بدون قيود">
+                    متاح للاستخدام المجاني بدون قيود
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        });
+        
+        // Check saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+        
+        // Language Toggle
+        const btnEN = document.getElementById('btnEN');
+        const btnAR = document.getElementById('btnAR');
+        
+        function setLanguage(lang) {
+            const isArabic = lang === 'ar';
+            
+            document.body.classList.toggle('rtl', isArabic);
+            document.documentElement.lang = isArabic ? 'ar' : 'en';
+            document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+            
+            btnEN.classList.toggle('active', !isArabic);
+            btnAR.classList.toggle('active', isArabic);
+            
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.textContent = isArabic ? el.dataset.ar : el.dataset.en;
+            });
+            
+            localStorage.setItem('lang', lang);
+        }
+        
+        btnEN.addEventListener('click', () => setLanguage('en'));
+        btnAR.addEventListener('click', () => setLanguage('ar'));
+        
+        // Check saved language - default to Arabic
+        const savedLang = localStorage.getItem('lang') || 'ar';
+        setLanguage(savedLang);
+        
+        // Interactive Sliders
+        const inSlider = document.getElementById('inSlider');
+        const outSlider = document.getElementById('outSlider');
+        const inValue = document.getElementById('inValue');
+        const outValue = document.getElementById('outValue');
+        
+        inSlider.addEventListener('input', () => {
+            inValue.textContent = inSlider.value;
+        });
+        
+        outSlider.addEventListener('input', () => {
+            outValue.textContent = outSlider.value;
+        });
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
