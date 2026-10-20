@@ -131,13 +131,18 @@ a{color:inherit;text-decoration:none}
 
 /* ── faq ── */
 .faq{max-width:var(--w-content);margin:0 auto;display:grid;gap:12px}
-.faq details{border-radius:var(--r-md);background:var(--c-surface);box-shadow:var(--e-1);padding:0 24px;transition:box-shadow .25s}
-.faq details[open]{box-shadow:var(--e-2)}
-.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 0;font-weight:600}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";flex-shrink:0;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--c-surface-2);color:var(--c-accent);font-size:18px;transition:transform .35s var(--ease-spring)}
-.faq details[open] summary::after{transform:rotate(45deg)}
-.faq p{color:var(--c-muted);padding-bottom:20px;font-size:var(--fs-small);line-height:1.8}
+.faq-item{border-radius:var(--r-md);background:var(--c-surface);box-shadow:var(--e-1);overflow:hidden;transition:box-shadow .3s}
+.faq-item.open{box-shadow:var(--e-2)}
+.faq-q{width:100%;cursor:pointer;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;font:inherit;font-weight:600;color:var(--c-ink);background:none;border:0;text-align:start}
+.chev{flex:none;position:relative;width:28px;height:28px;border-radius:8px;background:var(--c-surface-2);border:1px solid var(--c-line)}
+.chev::before,.chev::after{content:"";position:absolute;top:50%;left:50%;background:var(--c-accent);border-radius:2px;transform:translate(-50%,-50%);transition:opacity .28s ease,transform .28s ease}
+.chev::before{width:11px;height:2.4px}.chev::after{width:2.4px;height:11px}
+.faq-item.open .chev::after{opacity:0;transform:translate(-50%,-50%) scaleY(0)}
+.faq-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .38s cubic-bezier(.4,0,.2,1)}
+.faq-item.open .faq-wrap{grid-template-rows:1fr}
+.faq-inner{overflow:hidden;min-height:0}
+.faq-a{padding:0 24px 20px;color:var(--c-muted);font-size:var(--fs-small);line-height:1.8;opacity:0;transform:translateY(-6px);transition:opacity .3s ease,transform .38s cubic-bezier(.4,0,.2,1)}
+.faq-item.open .faq-a{opacity:1;transform:none}
 
 /* ── final CTA + wordmark ── */
 .final{position:relative;text-align:center;padding:96px 20px 60px;overflow:hidden}
@@ -277,11 +282,11 @@ footer a:hover{color:var(--c-ink)}
     <div class="wrap">
       <div class="head rv"><div class="label"><i></i><span>أسئلة شائعة</span><i></i></div><h2>عندك سؤال؟</h2></div>
       <div class="faq">
-        <details class="rv"><summary>كم جهاز أقدر أستخدم المفتاح عليه؟</summary><p>المفتاح لجهاز واحد. لو غيّرت جهازك، راسلنا ونحوّله لجهازك الجديد.</p></details>
-        <details class="rv"><summary>هل أحتاج إنترنت دايماً؟</summary><p>لا، الإنترنت مطلوب مرة وحدة وقت التفعيل. بعدها تشتغل بدون اتصال.</p></details>
-        <details class="rv"><summary>كيف توصلني التحديثات؟</summary><p>تلقائياً داخل الإضافة. يطلع لك «تحديث جاهز» وتضغط «تطبيق الآن».</p></details>
-        <details class="rv"><summary>أي نسخة After Effects تدعم؟</summary><p>After Effects 2022 وأحدث على ماك وويندوز.</p></details>
-        <details class="rv"><summary>هل تدعم النص العربي؟</summary><p>إيه، تقسيم الكلمات والأحرف مصمّم للعربي ويحافظ على اتصال الحروف.</p></details>
+        <div class="faq-item rv"><button class="faq-q" type="button" aria-expanded="false"><span>كم جهاز أقدر أستخدم المفتاح عليه؟</span><span class="chev"></span></button><div class="faq-wrap"><div class="faq-inner"><p class="faq-a">المفتاح لجهاز واحد. لو غيّرت جهازك، راسلنا ونحوّله لجهازك الجديد.</p></div></div></div>
+        <div class="faq-item rv"><button class="faq-q" type="button" aria-expanded="false"><span>هل أحتاج إنترنت دايماً؟</span><span class="chev"></span></button><div class="faq-wrap"><div class="faq-inner"><p class="faq-a">لا، الإنترنت مطلوب مرة وحدة وقت التفعيل. بعدها تشتغل بدون اتصال.</p></div></div></div>
+        <div class="faq-item rv"><button class="faq-q" type="button" aria-expanded="false"><span>كيف توصلني التحديثات؟</span><span class="chev"></span></button><div class="faq-wrap"><div class="faq-inner"><p class="faq-a">تلقائياً داخل الإضافة. يطلع لك «تحديث جاهز» وتضغط «تطبيق الآن».</p></div></div></div>
+        <div class="faq-item rv"><button class="faq-q" type="button" aria-expanded="false"><span>أي نسخة After Effects تدعم؟</span><span class="chev"></span></button><div class="faq-wrap"><div class="faq-inner"><p class="faq-a">After Effects 2022 وأحدث على ماك وويندوز.</p></div></div></div>
+        <div class="faq-item rv"><button class="faq-q" type="button" aria-expanded="false"><span>هل تدعم النص العربي؟</span><span class="chev"></span></button><div class="faq-wrap"><div class="faq-inner"><p class="faq-a">إيه، تقسيم الكلمات والأحرف مصمّم للعربي ويحافظ على اتصال الحروف.</p></div></div></div>
       </div>
     </div>
   </section>
@@ -299,6 +304,7 @@ footer a:hover{color:var(--c-ink)}
 
 <script>
 document.getElementById('yr').textContent=new Date().getFullYear();
+document.querySelectorAll('.faq-q').forEach(function(q){q.addEventListener('click',function(){var o=q.parentElement.classList.toggle('open');q.setAttribute('aria-expanded',o)})});
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* reveal */
