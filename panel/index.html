@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fast Workflow Pro</title><link rel="stylesheet" href="css/style.css"></head>
+<body>
+<div id="app-screen" class="screen">
+
+        <!-- TOP BAR (brand only — fixed always) -->
+        <div class="top-bar"><span class="top-bar-title">Fast Workflow Pro</span></div>
+
+        <!-- TAB BAR -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="templates">Templates</button>
+            <button class="tab-btn" data-tab="tools">Tools</button>
+            <button class="tab-btn" data-tab="graph">Graph</button>
+            <button class="tab-btn" data-tab="expr">Expr</button>
+        </div>
+
+        <!-- TEMPLATES TOOLBAR -->
+        <div id="tpl-toolbar" class="tpl-toolbar hidden">
+            <button id="btn-sidebar" class="tb-icon" title="Categories">☰</button>
+            <div class="tb-search"><span class="s">🔍</span><input type="text" id="search-input" placeholder="Search templates…"></div>
+            <div class="tb-seg client-view-seg" id="client-view-seg"></div>
+            <div class="tb-seg" id="view-seg"></div>
+            <button id="btn-settings" class="tb-icon" title="إعدادات القوالب (المجلد، العرض، الترتيب)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+        </div>
+
+        <!-- CLIENTS DIRECTORY HEADER -->
+        <div id="clients-head" class="clients-head hidden" dir="rtl">
+            <div class="clients-head-copy">
+                <span class="clients-head-title">الجهات</span>
+                <span id="client-count-top" class="clients-head-count">0</span>
+            </div>
+            <button id="btn-add-client" class="add-client-btn">+ جهة جديدة</button>
+        </div>
+
+        <!-- LIBRARY SCOPE: all templates or client workspaces -->
+        <div id="library-scope" class="library-scope hidden">
+            <button id="btn-scope-templates" class="scope-btn active">Templates</button>
+            <button id="btn-scope-clients" class="scope-btn">Clients <span id="client-count" class="scope-count">0</span></button>
+        </div>
+
+        <!-- CLIENT WORKSPACE HEADER -->
+        <div id="client-path" class="client-path hidden">
+            <button id="btn-client-back" class="client-back">‹ Clients</button>
+            <span id="active-client-name" class="client-path-name"></span>
+            <button id="btn-client-refresh" class="client-refresh" title="Refresh folder">↻</button>
+        </div>
+        <div id="client-category-strip" class="client-category-strip hidden"></div>
+
+        <!-- popups (anchored under the toolbar buttons via JS) -->
+        <div id="pop-overlay" class="pop-overlay"></div>
+        <div id="cats-pop" class="tb-pop">
+            <div class="tb-pop-title">التصنيفات / Categories</div>
+            <div class="new-cat-wrap">
+                <input type="text" id="new-cat-input" placeholder="New category…">
+                <button id="btn-add-category" class="new-cat-btn">+</button>
+            </div>
+            <ul id="category-list" class="category-list"></ul>
+        </div>
+        <div id="settings-pop" class="tb-pop">
+            <div class="tb-pop-title">الإعدادات / Settings</div>
+            <div id="client-folder-settings">
+                <div class="set-lbl">📁 مجلد الجهة / Client Folder</div>
+                <div class="folder-box"><span class="p" id="current-folder-display">Not set</span><button id="btn-set-folder">Change</button></div>
+                <button id="btn-reveal-folder" class="set-wide">فتح المجلد</button>
+                <button id="btn-edit-client" class="set-wide">تعديل بيانات الجهة</button>
+                <div class="set-div"></div>
+            </div>
+            <div class="set-lbl">طريقة العرض / View</div>
+            <div class="viewgrid" id="view-opts"></div>
+            <div class="set-div"></div>
+            <div class="set-lbl">ترتيب / Sort</div>
+            <div class="sortrow" id="sort-row">
+                <button data-sort="recent" class="on">Recent</button>
+                <button data-sort="name">Name</button>
+                <button data-sort="cat">Category</button>
+            </div>
+            <div class="set-div"></div>
+            <div class="settings-row"><span class="settings-label">Templates</span><span id="settings-count" class="settings-count">0</span></div>
+            <button id="btn-ig" class="set-wide" title="Support on Instagram">📷 Support · @aminellkadaoui</button>
+            <div class="settings-version">Fast Workflow Pro · الإصدار 1.0 · by amine</div>
+        </div>
+
+        <!-- ADD TEMPLATE + active category -->
+        <div id="add-template-bar" class="add-template-bar">
+            <button id="btn-add-comp" class="add-template-btn">+ Add Template</button>
+        </div>
+        <div id="activecat-bar" class="activecat-bar"><span class="dot"></span><span id="active-cat-label" class="active-cat-label">All Templates</span></div>
+
+        <!-- ADD FORM -->
+        <div id="add-comp-form" class="form-area hidden">
+            <label>حفظ الـComposition كقالب</label>
+            <input type="text" id="template-name" placeholder="اسم القالب" dir="auto">
+            <div class="cat-row hidden">
+                <select id="client-select" class="cat-select"><option value="">No client</option></select>
+                <button id="btn-new-client" class="cat-new-btn">New</button>
+            </div>
+            <input type="text" id="client-name" class="hidden" placeholder="New client name">
+            <div class="cat-row">
+                <select id="category-select" class="cat-select"><option value="">اختر التصنيف</option></select>
+                <button id="btn-new-category" class="cat-new-btn">جديد</button>
+            </div>
+            <input type="text" id="category-name" class="hidden" placeholder="اسم التصنيف الجديد" dir="auto">
+            <div class="checkbox-row"><input type="checkbox" id="include-assets" checked><label for="include-assets">حفظ ملفات الـFootage مع القالب</label></div>
+            <div class="form-actions">
+                <button id="btn-save-template" class="primary-btn">حفظ</button>
+                <button id="btn-cancel-save" class="secondary-btn">إلغاء</button>
+            </div>
+            <p id="save-status-msg" class="save-msg hidden"></p>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content-area">
+
+            <!-- TEMPLATES FOLDER GATE (shown only on Templates tab when no folder set) -->
+            <div id="templates-gate" class="templates-gate hidden">
+                <div class="gate-icon">📁</div>
+                <p class="gate-text">أضف جهة وحدد مجلدها لتظهر قوالبها.</p>
+                <button id="btn-gate-folder" class="primary-btn">+ جهة جديدة</button>
+                <div id="gate-folder-display" class="gate-folder-display"></div>
+            </div>
+
+            <div id="template-list" class="template-grid"></div>
+            <div id="client-list" class="client-grid hidden"></div>
+
+            <!-- TOOLS LIST -->
+            <div id="tools-list" class="tools-list hidden">
+
+                <!-- panel head + section visibility config -->
+                <div class="panel-head">
+                    <span class="panel-head-title">Tools</span>
+                    <button class="cfg-gear icon-btn" data-panel="tools" title="إظهار / إخفاء الأقسام">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                </div>
+                <div class="cfg-panel hidden" data-panel="tools">
+                    <div class="cfg-title">إظهار / إخفاء الأقسام</div>
+                    <div class="cfg-list">
+                        <label><input type="checkbox" data-sec="sec-anchor"><span>Anchor</span></label>
+                        <label><input type="checkbox" data-sec="sec-align"><span>Align</span></label>
+                        <label><input type="checkbox" data-sec="sec-create"><span>Create</span></label>
+                        <label><input type="checkbox" data-sec="sec-inout"><span>In / Out</span></label>
+                        <label><input type="checkbox" data-sec="sec-color"><span>Layer Color</span></label>
+                        <label><input type="checkbox" data-sec="sec-cappre"><span>Captions + Pre-comp</span></label>
+                    </div>
+                </div>
+
+                <!-- TOP: Anchor (left) + Align (right) side by side -->
+                <div class="tool-toprow">
+                    <div class="psec" id="sec-anchor">
+                        <div class="tools-section-label">Anchor Point</div>
+                        <div class="anchor-grid" id="anchor-grid"></div>
+                    </div>
+                    <div class="psec align-sec" id="sec-align">
+                        <div class="tools-section-label">Align</div>
+                        <div class="align-grid">
+                            <button class="align-btn" data-align="left" title="Align Left"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="1.5" height="14"/><rect x="4" y="3" width="9" height="3" rx="1"/><rect x="4" y="10" width="6" height="3" rx="1"/></svg></button>
+                            <button class="align-btn" data-align="hcenter" title="Align H-Center"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="7.25" y="1" width="1.5" height="14"/><rect x="3" y="3" width="10" height="3" rx="1"/><rect x="5" y="10" width="6" height="3" rx="1"/></svg></button>
+                            <button class="align-btn" data-align="right" title="Align Right"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="13.5" y="1" width="1.5" height="14"/><rect x="3" y="3" width="9" height="3" rx="1"/><rect x="6" y="10" width="6" height="3" rx="1"/></svg></button>
+                            <button class="align-btn" data-align="top" title="Align Top"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="14" height="1.5"/><rect x="3" y="4" width="3" height="9" rx="1"/><rect x="10" y="4" width="3" height="6" rx="1"/></svg></button>
+                            <button class="align-btn" data-align="vcenter" title="Align V-Center"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="7.25" width="14" height="1.5"/><rect x="3" y="3" width="3" height="10" rx="1"/><rect x="10" y="5" width="3" height="6" rx="1"/></svg></button>
+                            <button class="align-btn" data-align="bottom" title="Align Bottom"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="13.5" width="14" height="1.5"/><rect x="3" y="3" width="3" height="9" rx="1"/><rect x="10" y="6" width="3" height="6" rx="1"/></svg></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CREATE (full width, under the top block) -->
+                <div class="psec" id="sec-create">
+                    <div class="tools-section-label">Create</div>
+                    <div class="create-row">
+                        <button class="create-btn" data-create="null" title="Smart Null (parented to selection)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 4 l16 16"/><path d="M20 4 l-16 16"/></svg><span>Null</span></button>
+                        <button class="create-btn" data-create="adjustment" title="Adjustment Layer فوق الطبقة المحددة · Shift = بنفس مدتها"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M4 12 h16"/></svg><span>Adjust</span></button>
+                        <button class="create-btn" data-create="solid" title="Solid + Fill فوق الطبقة المحددة · Shift = بنفس مدتها"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg><span>Solid</span></button>
+                    </div>
+                </div>
+
+                <!-- IN / OUT — icon buttons (set In / set Out / move to playhead / reverse keys / split) -->
+                <div class="psec" id="sec-inout">
+                    <div class="trim-row">
+                        <button class="trim-btn" data-trim="in" title="Set layer In point to playhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 v16"/><path d="M20 12 H10"/><path d="M14 8 l-4 4 4 4"/></svg></button>
+                        <button class="trim-btn" data-trim="out" title="Set layer Out point to playhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 4 v16"/><path d="M4 12 H14"/><path d="M10 8 l4 4 -4 4"/></svg></button>
+                        <button class="trim-btn" data-trim="inm" title="Move layer In to playhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v6"/><path d="M9 6 l3 3 3 -3"/><rect x="4" y="13" width="16" height="6" rx="1"/></svg></button>
+                        <button class="trim-btn" id="btn-reverse-keys" title="Reverse all selected keyframes (with the graph)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+                        <button class="trim-btn" data-trim="split" title="Split layer at playhead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 v18"/><path d="M5 12 H2.5"/><path d="M21.5 12 H19"/><circle cx="7" cy="8" r="2.5"/><circle cx="7" cy="16" r="2.5"/></svg></button>
+                    </div>
+                </div>
+
+                <!-- LAYER COLOR (AE labels — small swatches) -->
+                <div class="psec" id="sec-color">
+                    <div class="tools-section-label">Layer Color</div>
+                    <div class="label-grid" id="label-grid"></div>
+                </div>
+
+                <!-- CAPTIONS + PRE-COMP + ORGANIZE (one row, equal sizes) -->
+                <div class="psec" id="sec-cappre">
+                    <div class="tools-section-label">Captions · Pre-comp · Organize</div>
+                    <div class="cappre-row">
+                        <button class="srt-btn" id="btn-import-srt" title="استيراد ترجمة SRT">
+                            <span class="srt-icon">SRT</span><span>Import SRT</span>
+                        </button>
+                        <button class="srt-btn" id="btn-precomp" title="Pre-compose · مع Shift = كل طبقة على حدة">
+                            <span class="srt-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></span><span>Pre-compose</span>
+                        </button>
+                        <button class="srt-btn" id="btn-organize" title="تنظيم الـ Project panel في مجلدات">
+                            <span class="srt-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg></span><span>Organize</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- GRAPH LIST (GraphControl) -->
+            <div id="graph-list" class="graph-list hidden">
+
+                <div class="panel-head">
+                    <span class="panel-head-title">Graph</span>
+                    <button class="cfg-gear icon-btn" data-panel="graph" title="إظهار / إخفاء الأقسام">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                </div>
+                <div class="cfg-panel hidden" data-panel="graph">
+                    <div class="cfg-title">إظهار / إخفاء الأقسام</div>
+                    <div class="cfg-list">
+                        <label><input type="checkbox" data-sec="sec-graph-main"><span>Graph</span></label>
+                        <label><input type="checkbox" data-sec="sec-graph-actions"><span>Actions</span></label>
+                        <label><input type="checkbox" data-sec="sec-graph-presets"><span>Presets</span></label>
+                    </div>
+                </div>
+
+                <!-- GRAPH (preview + controls merged) -->
+                <div class="psec" id="sec-graph-main">
+                    <div class="gc-gprev">
+                        <div class="gc-gtop">
+                            <button class="gc-ref" id="gc-ref" title="Sync from selected keyframe">↻</button>
+                            <button class="active" id="gc-tab-spd">Speed</button>
+                            <button id="gc-tab-val">Value</button>
+                            <button class="gc-save-btn" id="gc-save" title="Save current as preset">+</button>
+                        </div>
+                        <canvas class="gc-canvas" id="gc-canvas"></canvas>
+                    </div>
+                    <label class="gc-chk"><input type="checkbox" id="gc-affect"> Affect all keys on layer</label>
+                    <div class="gc-srow"><label>In</label><input type="range" id="gc-sI" min="0" max="100" value="33"><input type="number" class="gc-num" id="gc-nI" min="0" max="100" value="33"><span class="gc-unit">%</span></div>
+                    <div class="gc-srow"><label>Out</label><input type="range" id="gc-sO" min="0" max="100" value="33"><input type="number" class="gc-num" id="gc-nO" min="0" max="100" value="33"><span class="gc-unit">%</span></div>
+                    <button class="tool-wide-btn gc-apply-wide" id="gc-apply" title="Apply ease to selected keyframes">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Apply</span>
+                    </button>
+                </div>
+
+                <!-- GRAPH ACTIONS (Reverse / Copy / Paste — separate, toggle from the gear) -->
+                <div class="psec" id="sec-graph-actions">
+                    <div class="gc-iconrow">
+                        <button class="gc-ibtn" id="gc-reverse" title="Reverse ease (In ⇄ Out)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
+                        <button class="gc-ibtn" id="gc-copy" title="Copy ease"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                        <button class="gc-ibtn" id="gc-paste" title="Paste ease"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></button>
+                    </div>
+                </div>
+
+                <div class="psec" id="sec-graph-presets">
+                    <div class="presets-head">
+                        <span class="tools-section-label">Presets</span>
+                        <button id="gc-pmode" class="pmode-btn" title="Switch preset preview: Speed ⇄ Value">Speed</button>
+                    </div>
+                    <div class="gc-presets" id="gc-presets"></div>
+                </div>
+
+                <div class="gc-status" id="gc-status">Ready</div>
+            </div>
+
+            <!-- EXPRESSIONS LIST -->
+            <div id="expr-list" class="expr-list hidden">
+
+                <div class="panel-head">
+                    <span class="panel-head-title">Expressions</span>
+                    <button class="cfg-gear icon-btn" data-panel="expr" title="إظهار / إخفاء الأقسام">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                </div>
+                <div class="cfg-panel hidden" data-panel="expr">
+                    <div class="cfg-title">إظهار / إخفاء الأقسام</div>
+                    <div class="cfg-list">
+                        <label><input type="checkbox" data-sec="sec-expr-add"><span>Add Expression</span></label>
+                        <label><input type="checkbox" data-sec="sec-expr-lib"><span>Library</span></label>
+                    </div>
+                </div>
+
+                <!-- ADD NEW EXPRESSION (Name + Code + Add) — like EZ_Workflow_Pro -->
+                <div class="psec" id="sec-expr-add">
+                    <div class="tools-section-label">Add New Expression</div>
+                    <input type="text" id="expr-name" class="expr-name" placeholder="Button name (e.g. Wiggle)">
+                    <textarea id="expr-code" class="expr-code" spellcheck="false" placeholder="Expression code, e.g. wiggle(2,30)"></textarea>
+                    <div class="expr-actions">
+                        <button class="gc-btn gc-btn-a" id="btn-expr-apply">Apply</button>
+                        <button class="gc-btn" id="btn-expr-add" title="Add to Library">＋ Add</button>
+                        <button class="gc-btn" id="btn-expr-remove" title="Remove expression from layer">✕</button>
+                    </div>
+                </div>
+
+                <!-- EXPRESSION LIBRARY -->
+                <div class="psec" id="sec-expr-lib">
+                    <div class="tools-section-label">Expression Library <span class="hint">(click = apply · ✎ = edit)</span></div>
+                    <div class="expr-grid" id="expr-presets"></div>
+                </div>
+                <div class="gc-status" id="expr-status">Select a property, then Apply</div>
+            </div>
+        </div>
+
+        
+    </div>
+<div id="license-gate" class="show" style="display:none"></div>
+<div id="demo-toast"></div>
+<style>
+html,body{height:100%}
+#demo-toast{position:fixed;left:50%;bottom:14px;transform:translate(-50%,20px);opacity:0;background:#00A1FF;color:#fff;font-size:11px;font-weight:600;padding:6px 12px;border-radius:14px;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap;direction:rtl}
+#demo-toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+<script>
+/* Demo shim: stands in for After Effects + the panel core, so the real UI files run in a browser */
+var Q=new URLSearchParams(location.search), ONLY=Q.get('only');
+var activeTab='templates', cs={evalScript:function(s,cb){if(cb)setTimeout(function(){cb('{"ok":true,"count":1}')},10)}};
+function CSInterface(){return cs}
+window.__fwpLicensed=true;
+function toast(m){var e=document.getElementById('demo-toast');if(!e)return;e.textContent=m;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},1400)}
+function runQuick(){toast('✓ تم')}
+function applyExpr(){toast('✓ انطبق الإكسبريشن')}
+function gcAffect(){return 'false'}
+function updateTopBar(){} function updateTemplatesGate(){} function applyVis(){}
+var EXPR_DEFAULTS=[{label:'〰 Wiggle',code:'wiggle(2, 30)'},{label:'⟳ Loop Out',code:'loopOut("cycle")'},{label:'⟲ Loop In',code:'loopIn("cycle")'},{label:'⇌ Ping-Pong',code:'loopOut("pingpong")'},{label:'∿ Smooth',code:'smooth(0.5, 5)'},{label:'⏱ Time',code:'value + time*60'},{label:'⁂ Random',code:'seedRandom(index, true);\nwiggle(3, 40)'},{label:'⤙ Bounce',code:'// bounce'}];
+var exprPresets=EXPR_DEFAULTS.slice();
+var GC_DEFS=[{i:33,o:33},{i:75,o:75},{i:80,o:20},{i:20,o:80},{i:10,o:60},{i:60,o:10},{i:90,o:10},{i:85,o:85}], gcPresets=GC_DEFS.slice(), gcMode='speed', gcPresetMode='speed';
+var LABEL_COLORS=['','#E84B4B','#E2D34A','#6FC2C6','#E6A6C7','#9E94D4','#E6B98C','#8FD18C','#5A8DD6','#6FA85A','#8E6FB0','#E08A3C','#9C6B4E','#C94FB0','#5AC8D6','#C7B89E','#4E7A4E'];
+function $id(i){return document.getElementById(i)}
+function buildAnchorGrid(){var g=$id('anchor-grid');if(!g||g.children.length)return;for(var r=0;r<3;r++)for(var c=0;c<3;c++){var b=document.createElement('button');b.className='anchor-btn';b.innerHTML='<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="14" height="14" rx="2"/><circle cx="'+(3+c*7)+'" cy="'+(3+r*7)+'" r="1.6" fill="#00a1ff" stroke="none"/></svg>';b.onclick=function(){toast('✓ Anchor')};g.appendChild(b)}}
+function buildLabelGrid(){var g=$id('label-grid');if(!g||g.children.length)return;for(var i=0;i<=16;i++){var b=document.createElement('button');b.className='label-swatch'+(i?'':' none');if(i)b.style.background=LABEL_COLORS[i];b.onclick=function(){toast('✓ Layer Color')};g.appendChild(b)}}
+function gcBez(t,a,b,c,d){var m=1-t;return m*m*m*a+3*m*m*t*b+3*m*t*t*c+t*t*t*d}
+function gcSpeedCurve(inN,outN,N){var X=[],Y=[],S=[],i;for(i=0;i<=N;i++){var t=i/N;X[i]=gcBez(t,0,outN,1-inN,1);Y[i]=gcBez(t,0,0,1,1)}for(i=0;i<=N;i++){var a=Math.max(0,i-1),b=Math.min(N,i+1),dx=X[b]-X[a],dy=Y[b]-Y[a];S[i]=Math.abs(dx)>1e-6?Math.abs(dy/dx):0}var mx=0;for(i=0;i<=N;i++)if(S[i]>mx)mx=S[i];return{X:X,S:S,maxS:mx||1,N:N}}
+function gcDraw(){var cv=$id('gc-canvas');if(!cv)return;if(!cv._ro&&window.ResizeObserver){cv._ro=new ResizeObserver(function(){gcDraw()});cv._ro.observe(cv)}var r=cv.getBoundingClientRect();if(!r.width)return;var dpr=devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;var x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+ var w=r.width,h=r.height,p=10,i;x.fillStyle='#1D1D1D';x.fillRect(0,0,w,h);x.strokeStyle='#272727';x.lineWidth=.5;
+ for(i=0;i<=4;i++){var y=p+(h-2*p)*i/4;x.beginPath();x.moveTo(p,y);x.lineTo(w-p,y);x.stroke();var xx=p+(w-2*p)*i/4;x.beginPath();x.moveTo(xx,p);x.lineTo(xx,h-p);x.stroke()}
+ var inN=(+$id('gc-nI').value||0)/100,outN=(+$id('gc-nO').value||0)/100,sx=p,ex=w-p,by=h-p,ty=p;
+ function dot(a,b,rr,c){x.fillStyle=c;x.beginPath();x.arc(a,b,rr,0,7);x.fill()}
+ if(gcMode==='speed'){var pt=gcSpeedCurve(inN,outN,240);var SX=function(k){return sx+(ex-sx)*pt.X[k]},SY=function(k){return by-(by-ty)*(pt.S[k]/pt.maxS)*.9};
+  x.beginPath();x.moveTo(SX(0),by);for(i=0;i<=pt.N;i++)x.lineTo(SX(i),SY(i));x.lineTo(SX(pt.N),by);x.closePath();var g=x.createLinearGradient(0,ty,0,by);g.addColorStop(0,'rgba(0,161,255,.10)');g.addColorStop(1,'rgba(0,161,255,0)');x.fillStyle=g;x.fill();
+  x.beginPath();for(i=0;i<=pt.N;i++){i?x.lineTo(SX(i),SY(i)):x.moveTo(SX(i),SY(i))}x.strokeStyle='#00A1FF';x.lineWidth=1.8;x.shadowBlur=6;x.shadowColor='rgba(0,161,255,.4)';x.stroke();x.shadowBlur=0;dot(SX(0),SY(0),3,'#00A1FF');dot(SX(pt.N),SY(pt.N),3,'#00A1FF')}
+ else{var c1=sx+(ex-sx)*outN,c2=ex-(ex-sx)*inN;x.beginPath();x.moveTo(sx,by);x.bezierCurveTo(c1,by,c2,ty,ex,ty);x.strokeStyle='#00A1FF';x.lineWidth=1.8;x.stroke();dot(sx,by,3,'#00A1FF');dot(ex,ty,3,'#00A1FF');dot(c1,by,2,'rgba(0,161,255,.4)');dot(c2,ty,2,'rgba(0,161,255,.4)')}}
+function gcResize(){gcDraw()}
+function gcDrawMini(cv,o,inn,mode){var x=cv.getContext('2d'),w=34,h=22,p=3,i;x.setTransform(2,0,0,2,0,0);x.fillStyle='#1A1A1A';x.fillRect(0,0,w,h);x.beginPath();
+ if(mode==='value'){x.moveTo(p,h-p);x.bezierCurveTo(p+(w-2*p)*o,h-p,w-p-(w-2*p)*inn,p,w-p,p)}else{var pt=gcSpeedCurve(inn,o,160);for(i=0;i<=pt.N;i++){var X=p+(w-2*p)*pt.X[i],Y=h-p-(h-2*p)*(pt.S[i]/pt.maxS)*.9;i?x.lineTo(X,Y):x.moveTo(X,Y)}}
+ x.strokeStyle='#00A1FF';x.lineWidth=1.3;x.stroke()}
+function gcSet(i,o){$id('gc-nI').value=$id('gc-sI').value=i;$id('gc-nO').value=$id('gc-sO').value=o;gcDraw()}
+function gcRenderP(){var c=$id('gc-presets');if(!c)return;c.innerHTML='';var pm=$id('gc-pmode');if(pm)pm.textContent=gcPresetMode==='speed'?'Speed':'Value';
+ gcPresets.forEach(function(q){var el=document.createElement('div');el.className='gc-preset';var cv=document.createElement('canvas');cv.width=68;cv.height=44;cv.style.width='34px';cv.style.height='22px';gcDrawMini(cv,q.o/100,q.i/100,gcPresetMode);el.appendChild(cv);el.onclick=function(){gcSet(q.i,q.o);toast('In '+q.i+'% · Out '+q.o+'%')};c.appendChild(el)})}
+function gcInit(){gcRenderP();setTimeout(gcDraw,30)}
+function renderExprPresets(){var g=$id('expr-presets');if(!g)return;g.innerHTML='';exprPresets.forEach(function(p){var it=document.createElement('div');it.className='expr-item';it.innerHTML='<span class="expr-label"></span><span class="expr-mini">✎</span><span class="expr-mini del">✕</span>';it.firstChild.textContent=p.label;it.firstChild.onclick=function(){$id('expr-code').value=p.code;applyExpr(p.code)};g.appendChild(it)})}
+var TPLS=[['Lower Third','Titles','#1C79FE','#0b1426'],['Logo Reveal','Logo','#9b5de5','#140b26'],['Subscribe Pop','Social','#ff3b3b','#260b0b'],['Title Glitch','Titles','#00c2a8','#06201c'],['Counter','Social','#e6b422','#241d06'],['Callout','Lower','#f15bb5','#26061a']];
+function renderGrid(){var g=$id('template-list');if(!g)return;g.className='template-grid view-grid';g.innerHTML=TPLS.map(function(t){return '<div class="template-card"><div class="card-thumb" style="background:linear-gradient(135deg,'+t[3]+','+t[2]+')"><span class="card-thumb-text">'+t[0].split(' ').map(function(w){return w[0]}).join('')+'</span><span class="card-thumb-size">1920×1080</span><button class="card-star-btn">★</button></div><div class="card-body"><div class="card-name">'+t[0]+'</div><div class="card-meta"><span class="badge">'+t[1]+'</span></div></div><div class="card-footer"><button class="card-import-btn">▶ Import</button><button class="card-more-btn">⋯</button></div></div>'}).join('')}
+function switchTab(){
+ var tl=$id('tools-list'),gl=$id('graph-list'),el=$id('expr-list');
+ tl.classList.toggle('hidden',activeTab!=='tools');gl.classList.toggle('hidden',activeTab!=='graph');el.classList.toggle('hidden',activeTab!=='expr');
+ ['template-list','tpl-toolbar','add-template-bar','activecat-bar'].forEach(function(i){var e=$id(i);if(e)e.classList.toggle('hidden',activeTab!=='templates')});
+ if(activeTab==='tools'){buildAnchorGrid();buildLabelGrid()} if(activeTab==='graph')gcInit();
+}
+document.addEventListener('DOMContentLoaded',function(){
+ document.querySelectorAll('.tab-btn').forEach(function(btn){btn.addEventListener('click',function(){document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');activeTab=btn.dataset.tab;switchTab()})});
+ ['I','O'].forEach(function(k){var s=$id('gc-s'+k),n=$id('gc-n'+k);s.addEventListener('input',function(e){n.value=s.value;if(e.shiftKey){var o=k==='I'?'O':'I';$id('gc-s'+o).value=$id('gc-n'+o).value=s.value}gcDraw()});n.addEventListener('input',function(){s.value=n.value;gcDraw()})});
+ $id('gc-tab-spd').onclick=function(){gcMode='speed';this.classList.add('active');$id('gc-tab-val').classList.remove('active');gcDraw()};
+ $id('gc-tab-val').onclick=function(){gcMode='value';this.classList.add('active');$id('gc-tab-spd').classList.remove('active');gcDraw()};
+ var pm=$id('gc-pmode');if(pm)pm.onclick=function(){gcPresetMode=gcPresetMode==='speed'?'value':'speed';gcRenderP()};
+ $id('gc-reverse').onclick=function(){var a=$id('gc-nI').value;gcSet($id('gc-nO').value,a);toast('تم العكس ✓')};
+ renderGrid();renderExprPresets();buildAnchorGrid();buildLabelGrid();gcRenderP();
+ activeTab=ONLY?(Q.get('tab')||'tools'):'templates';switchTab();
+ document.addEventListener('click',function(e){if(e.target.closest('.tab-bar')){setTimeout(gcDraw,60);setTimeout(gcDraw,300)}});
+ /* generic feedback for buttons that would talk to After Effects */
+ document.addEventListener('click',function(e){var b=e.target.closest('.create-btn,.align-btn,.trim-btn,.srt-btn,#gc-apply,#gc-copy,#gc-paste,.card-import-btn,#btn-expr-apply');if(b)toast('✓ '+(b.title||b.textContent.trim()).slice(0,28))},true);
+ if(ONLY)setTimeout(function(){var keep=ONLY.split(',');var st=document.createElement('style');st.textContent='html,body{height:auto!important;overflow:hidden!important;background:#1D1D1D}.screen{height:auto!important}.content-area{overflow:visible!important;height:auto!important}.top-bar,.tab-bar,.panel-head,.cfg-panel,.gc-status,#expr-status,#tpl-toolbar,#add-template-bar,#activecat-bar{display:none!important}';document.head.appendChild(st);
+  document.querySelectorAll('.psec').forEach(function(e){if(keep.indexOf(e.id)<0)e.style.display='none'});
+  var tr=document.querySelector('.tool-toprow');if(tr&&!keep.some(function(k){return tr.querySelector('#'+k)}))tr.style.display='none';
+  var send=function(){parent.postMessage({fwpH:document.body.scrollHeight,id:Q.get('id')},'*')};setTimeout(function(){gcDraw();send()},200);setTimeout(send,900);addEventListener('resize',send)},80);
+ else setTimeout(function(){var t=[].slice.call(document.querySelectorAll('.tab-bar button, .tab-bar .tab-btn')).filter(function(b){return /tools/i.test(b.textContent)&&b.offsetParent});if(t[0])t[0].click()},400);
+});
+</script>
+<script src="js/tools2.js"></script>
+<script src="js/notes.js"></script>
+<script>if(!ONLY)document.write('<script src="js/workspace.js"><\/script>')</script>
+</body></html>
